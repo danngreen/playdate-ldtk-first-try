@@ -1,7 +1,14 @@
 -- local pd <const> = playdate
 local gfx <const> = playdate.graphics
-
 local ldtk <const> = LDtk
+
+TAGS = {
+	Player = 1
+}
+
+Z_INDEXES = {
+	Player = 100
+}
 
 ldtk.load("levels/world.ldtk", false)
 
@@ -9,6 +16,10 @@ class('GameScene').extends()
 
 function GameScene:init()
     self:goToLevel("Level_0")
+
+	self.spawnX = 9 * 16
+	self.spawnY = 2 * 16
+	self.player = Player(self.spawnX, self.spawnY)
 end
 
 function GameScene:goToLevel(levelName)

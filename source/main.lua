@@ -9,8 +9,8 @@ import "scripts/libraries/AnimatedSprite"
 import "scripts/libraries/LDtk"
 
 -- Game
--- import "scripts/player"
 import "scripts/GameScene"
+import "scripts/player"
 -- import "scripts/ability"
 -- import "scripts/spike"
 -- import "scripts/spikeball"
