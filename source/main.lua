@@ -11,8 +11,8 @@ import "scripts/libraries/LDtk"
 -- Game
 import "scripts/GameScene"
 import "scripts/player"
--- import "scripts/ability"
--- import "scripts/spike"
+import "scripts/ability"
+import "scripts/spike"
 -- import "scripts/spikeball"
 
 local pd <const> = playdate
