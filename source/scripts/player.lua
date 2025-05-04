@@ -53,6 +53,7 @@ function Player:init(x, y, gameManager)
 	self.touchingGround = false
 	self.touchingCeiling = false
 	self.touchingWall = false
+	self.autoJumpXVelocity = 0
 end
 
 function Player:collisionResponse(other)
@@ -115,6 +116,9 @@ end
 function Player:handleMovementAndCollisions()
 	local _, _, collisions, length = self:moveWithCollisions(self.x + self.xVelocity, self.y + self.yVelocity)
 
+	-- print("xv: "..self.xVelocity.." yv: "..self.yVelocity)
+	local wasTouchingGround = self.touchingGround
+	local wasTouchingWall = self.touchingWall
 	self.touchingGround = false
 	self.touchingCeiling = false
 	self.touchingWall = false
@@ -129,6 +133,7 @@ function Player:handleMovementAndCollisions()
 			-- normal.y == -1 means the ground
 			if collision.normal.y == -1 then
 				self.touchingGround = true
+				self.autoJumpXVelocity = 0
 				self.dashAvailable = true
 				self.doubleJumpAvailable = true
 			elseif collision.normal.y == 1 then
@@ -136,6 +141,10 @@ function Player:handleMovementAndCollisions()
 			end
 
 			if collision.normal.x ~= 0 then
+				if wasTouchingGround and wasTouchingWall then
+					self.autoJumpXVelocity = -3 * collision.normal.x
+					self.jumpBuffer = self.jumpBufferAmount
+				end
 				self.touchingWall = true
 			end
 		end
@@ -146,6 +155,7 @@ function Player:handleMovementAndCollisions()
 			self.dashAvailable = false
 			self.doubleJumpAvailable = false
 			-- died = true
+
 		elseif collisionTag == TAGS.Pickup then
 			collisionObject:pickup(self)
 
@@ -256,7 +266,12 @@ end
 -- Physics helpers
 --
 function Player:applyGravity()
+	if self.yVelocity == 0 and self.autoJumpXVelocity ~= 0 then
+		self.xVelocity = self.autoJumpXVelocity
+	end
+
 	self.yVelocity += self.gravity
+
 	if self.touchingGround or self.touchingCeiling then
 		self.yVelocity = 0
 	end
@@ -270,7 +285,9 @@ function Player:applyDrag(amount)
 	end
 
 	if math.abs(self.xVelocity) < self.minimumAirSpeed or self.touchingWall then
-		self.xVelocity = 0
+		if self.autoJumpXVelocity == 0 then
+			self.xVelocity = 0
+		end
 	end
 end
 
