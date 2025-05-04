@@ -13,6 +13,7 @@ import "scripts/GameScene"
 import "scripts/player"
 import "scripts/ability"
 import "scripts/spike"
+import "scripts/SlidingDoor"
 -- import "scripts/spikeball"
 
 local pd <const> = playdate

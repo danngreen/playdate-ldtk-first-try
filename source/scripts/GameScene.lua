@@ -6,12 +6,14 @@ TAGS = {
 	Player = 1,
 	Hazard = 2,
 	Pickup = 3,
+	Door = 4,
 }
 
 Z_INDEXES = {
 	Player = 100,
 	Hazard = 20,
 	Pickup = 50,
+	Door = 60,
 }
 
 local usePrecomputedLevels = not playdate.isSimulator
@@ -90,6 +92,8 @@ function GameScene:goToLevel(levelName)
 			Spike(entityX, entityY)
 		elseif entityName == "Ability" then
 			Ability(entityX, entityY, entity)
+		elseif entityName == "SlidingDoor" then
+			SlidingDoor(entityX, entityY)
 		end
 	end
 end

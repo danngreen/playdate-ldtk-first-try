@@ -147,8 +147,12 @@ function Player:handleMovementAndCollisions()
 			self.doubleJumpAvailable = false
 			-- died = true
 		elseif collisionTag == TAGS.Pickup then
-			collisionObject: pickup(self)
+			collisionObject:pickup(self)
+
+		elseif collisionTag == TAGS.Door then
+			collisionObject:open()
 		end
+
 	end
 
 	-- Flip direction even in the air
