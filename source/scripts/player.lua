@@ -7,13 +7,13 @@ function Player:init(x, y, gameManager)
 	self.gameManager = gameManager
 
 	-- State Machine
-	local playerImageTable = gfx.imagetable.new("images/player-table-16-16.png")
+	local playerImageTable = gfx.imagetable.new("images/player-table-32-32.png")
 
 	-- this adds the sprite to the draw list (so Player:update() will get called from gfx.sprite.update()
 	Player.super.init(self, playerImageTable)
 
 	self:addState("idle", 1, 1)
-	self:addState("run", 1, 3, {tickStep = 4})
+	self:addState("run", 1, 3, {tickStep = 3})
 	self:addState("jump", 4, 4)
 	self:addState("dash", 4, 4)
 	self:playAnimation()
@@ -22,38 +22,35 @@ function Player:init(x, y, gameManager)
 	self:moveTo(x, y)
 	self:setZIndex(Z_INDEXES.Player)
 	self:setTag(TAGS.Player)
-	self:setCollideRect(3, 3, 10, 13)
+	self:setCollideRect(8, 11, 16, 21)
 
-	-- Physics Properties
+	-- Player state
 	self.xVelocity = 0
 	self.yVelocity = 0
-	self.gravity = 1.0
-	self.maxSpeed = 2.0
-	self.jumpVelocity = -6
-	self.drag = 0.1
-	self.minimumAirSpeed = 0.5
-
-	self.jumpBufferAmount = 5
 	self.jumpBuffer = 0
-
-	-- Abilities
-	self.doubleJumpAbility = false
-	self.dashAbility = true
-
-	-- Double Jump
-	self.doubleJumpAvailable = true
-
-	-- Dash
-	self.dashAvailable = true
-	self.dashSpeed = 8
-	self.dashMinimumSpeed = 3
-	self.dashDrag = 0.8
-
-	-- Player State
 	self.touchingGround = false
 	self.touchingCeiling = false
 	self.touchingWall = false
 	self.autoJumpXVelocity = 0
+	--
+	-- Player Ability state 
+	self.doubleJumpAbility = true
+	self.dashAbility = true
+	self.doubleJumpAvailable = true
+	self.dashAvailable = true
+
+	-- Physics settings
+	self.gravity = 1.0
+	self.maxSpeed = 3.0
+	self.jumpVelocity = -9
+	self.drag = 0.1
+	self.minimumAirSpeed = 0.5
+	self.jumpBufferAmount = 5
+
+	-- Ability settings
+	self.dashSpeed = 8
+	self.dashMinimumSpeed = 3
+	self.dashDrag = 0.8
 end
 
 function Player:collisionResponse(other)
@@ -172,13 +169,20 @@ function Player:handleMovementAndCollisions()
 		self.globalFlip = 0
 	end
 
+
+	--  camera
+	self.gameManager:cameraFocusAt(self.x, self.y)
+
 	if self.x < 0 then
 		self.gameManager:enterRoom("west")
-	elseif self.x > 400 then
+
+	elseif self.x > self.gameManager.levelWidth then
 		self.gameManager:enterRoom("east")
+
 	elseif self.y < 0 then
 		self.gameManager:enterRoom("north")
-	elseif self.y > 240 then
+
+	elseif self.y > self.gameManager.levelHeight then
 		self.gameManager:enterRoom("south")
 	end
 

@@ -17,7 +17,7 @@ Z_INDEXES = {
 }
 
 local usePrecomputedLevels = not playdate.isSimulator
-ldtk.load("levels/world.ldtk", usePrecomputedLevels)
+ldtk.load("levels32/world.ldtk", usePrecomputedLevels)
 
 if playdate.isSimulator then
 	ldtk.export_to_lua_files()
@@ -26,12 +26,17 @@ end
 class('GameScene').extends()
 
 function GameScene:init()
-    self:goToLevel("Level_4")
+    self:goToLevel("Level_0")
 
-	self.spawnX = 11 * 16 + 8
-	self.spawnY = 7 * 16
+	self.spawnX = 13 * 32 + 8
+	self.spawnY = 12 * 32
 
 	self.player = Player(self.spawnX, self.spawnY, self)
+
+	self.levelWidth = 800
+	self.levelHeight = 480
+
+	self:cameraFocusAt(self.spawnX, self.spawnY)
 end
 
 
@@ -43,19 +48,32 @@ function GameScene:enterRoom(direction)
 	local spawnX, spawnY
 
 	if direction == "north" then
-		spawnX, spawnY = self.player.x, 240
+		spawnX, spawnY = self.player.x, self.levelHeight
 	elseif direction == "south" then
 		spawnX, spawnY = self.player.x, 0
 	elseif direction == "east" then
 		spawnX, spawnY = 0, self.player.y
 	elseif direction == "west" then
-		spawnX, spawnY = 400, self.player.y
+		spawnX, spawnY = self.levelWidth, self.player.y
 	end
 
 	self.player:moveTo(spawnX, spawnY)
 	self.spawnX = spawnX
 	self.spawnY = spawnY
 end
+
+function GameScene:cameraFocusAt(x, y)
+	local screenCenterX = 200
+	local screenCenterY = 120
+
+	self.cameraPosX = math.max(math.min(screenCenterX - x, 0), 2*screenCenterX-self.levelWidth)
+	self.cameraPosY = math.max(math.min(screenCenterY - y, 0), 2*screenCenterY-self.levelHeight)
+
+	-- print(self.cameraPosX, self.cameraPosY)
+	gfx.setDrawOffset(self.cameraPosX, self.cameraPosY)
+
+end
+
 
 function GameScene:goToLevel(levelName)
     --if not level_name then return end
@@ -69,17 +87,24 @@ function GameScene:goToLevel(levelName)
         if layer.tiles then
             local tilemap = ldtk.create_tilemap(levelName, layerName)
 
-            local layerSprite = gfx.sprite.new()
-            layerSprite:setTilemap(tilemap)
-            layerSprite:setCenter(0, 0)
-            layerSprite:moveTo(0, 0)
-            layerSprite:setZIndex(layer.zIndex)
-            layerSprite:add()
+			if tilemap then
+				self.levelWidth, self.levelHeight = tilemap:getSize()
+				self.levelHeight *= 32
+				self.levelWidth *= 32
+				-- print("Level is "..self.levelWidth.."x"..self.levelHeight)
 
-            local emptyTiles = ldtk.get_empty_tileIDs(levelName, "Solid", layerName)
-            if emptyTiles then
-                gfx.sprite.addWallSprites(tilemap, emptyTiles)
-            end
+				local layerSprite = gfx.sprite.new()
+				layerSprite:setTilemap(tilemap)
+				layerSprite:setCenter(0, 0)
+				layerSprite:moveTo(0, 0)
+				layerSprite:setZIndex(layer.zIndex)
+				layerSprite:add()
+
+				local emptyTiles = ldtk.get_empty_tileIDs(levelName, "Solid", layerName)
+				if emptyTiles then
+					gfx.sprite.addWallSprites(tilemap, emptyTiles)
+				end
+			end
         end
     end
 
