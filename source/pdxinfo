@@ -1,2 +1,5 @@
 name=ldtk-first-try
+author=Eli and Dan
 bundleID=com.elianddan.first-try
+version=0.1
+buildNumber=1
