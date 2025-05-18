@@ -14,7 +14,7 @@ import "scripts/player"
 import "scripts/ability"
 import "scripts/spike"
 import "scripts/SlidingDoor"
--- import "scripts/spikeball"
+import "scripts/coin"
 
 local pd <const> = playdate
 local gfx <const> = playdate.graphics

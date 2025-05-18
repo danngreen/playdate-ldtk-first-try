@@ -51,6 +51,9 @@ function Player:init(x, y, gameManager)
 	self.dashSpeed = 8
 	self.dashMinimumSpeed = 3
 	self.dashDrag = 0.8
+
+	-- Coins
+	self.numCoins = 0
 end
 
 function Player:collisionResponse(other)
@@ -158,6 +161,7 @@ function Player:handleMovementAndCollisions()
 
 		elseif collisionTag == TAGS.Door then
 			collisionObject:open()
+
 		end
 
 	end

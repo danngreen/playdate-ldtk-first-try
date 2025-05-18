@@ -7,6 +7,7 @@ TAGS = {
 	Hazard = 2,
 	Pickup = 3,
 	Door = 4,
+	BonusItems = 5,
 }
 
 Z_INDEXES = {
@@ -14,6 +15,7 @@ Z_INDEXES = {
 	Hazard = 20,
 	Pickup = 50,
 	Door = 60,
+	BonusItems = 90,
 }
 
 local usePrecomputedLevels = not playdate.isSimulator
@@ -119,6 +121,9 @@ function GameScene:goToLevel(levelName)
 			Ability(entityX, entityY, entity)
 		elseif entityName == "SlidingDoor" then
 			SlidingDoor(entityX, entityY)
+		elseif entityName == "Coin" then
+			Coin(entityX, entityY, entity)
+
 		end
 	end
 end
