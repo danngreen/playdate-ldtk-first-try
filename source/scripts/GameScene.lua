@@ -88,35 +88,10 @@ function GameScene:goToLevel(levelName)
 	local layers = ldtk.get_layers(levelName)
 	assert(layers)
 
-    for layerName, layer in pairs(layers) do
-        if layer.tiles then
-            local tilemap = ldtk.create_tilemap(levelName, layerName)
-
-			if tilemap then
-				self.levelWidth, self.levelHeight = tilemap:getSize()
-				self.levelHeight *= 32
-				self.levelWidth *= 32
-				-- print("Level is "..self.levelWidth.."x"..self.levelHeight)
-
-				local layerSprite = gfx.sprite.new()
-				layerSprite:setTilemap(tilemap)
-				layerSprite:setCenter(0, 0)
-				layerSprite:moveTo(0, 0)
-				layerSprite:setZIndex(layer.zIndex)
-				layerSprite:add()
-
-				local emptyTiles = ldtk.get_empty_tileIDs(levelName, "Solid", layerName)
-				if emptyTiles then
-					gfx.sprite.addWallSprites(tilemap, emptyTiles)
-				end
-			end
-        end
-    end
-
-
-	-- Spawn hazards
-	local entities = ldtk.get_entities(levelName, layerName)
+	local entities = ldtk.get_entities(levelName, nil)
 	assert(entities)
+
+	local fake_walls = {}
 
 	for _, entity in ipairs(entities) do
 		local entityX, entityY = entity.position.x, entity.position.y
@@ -135,9 +110,44 @@ function GameScene:goToLevel(levelName)
 			Coin(entityX, entityY, entity)
 
 		elseif entityName == "FakeWall" then
-			FakeWall(entityX, entityY, entity)
+			table.insert(fake_walls, {entityX / 32 + 1, entityY / 32 + 1})
 
 
 		end
 	end
+
+    for layerName, layer in pairs(layers) do
+        if layer.tiles then
+            local tilemap = ldtk.create_tilemap(levelName, layerName)
+
+			if tilemap then
+				self.levelWidth, self.levelHeight = tilemap:getSize()
+				self.levelHeight *= 32
+				self.levelWidth *= 32
+				-- print("Level is "..self.levelWidth.."x"..self.levelHeight)
+
+				local layerSprite = gfx.sprite.new()
+				layerSprite:setTilemap(tilemap)
+				layerSprite:setCenter(0, 0)
+				layerSprite:moveTo(0, 0)
+				layerSprite:setZIndex(layer.zIndex)
+				layerSprite:add()
+
+				local emptyTileIds = ldtk.get_empty_tileIDs(levelName, "Solid", layerName)
+
+				if emptyTileIds then
+					-- Copy tilemap and set fakewalls to non-solid
+					local tilemap_with_fakewalls = ldtk.create_tilemap(levelName, layerName)
+					assert(tilemap_with_fakewalls)
+
+					for _, fakewall in ipairs(fake_walls) do
+						tilemap_with_fakewalls:setTileAtPosition(fakewall[1], fakewall[2], 0)
+					end
+
+					gfx.sprite.addWallSprites(tilemap_with_fakewalls, emptyTileIds)
+				end
+			end
+        end
+    end
+
 end
